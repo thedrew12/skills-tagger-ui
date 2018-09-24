@@ -10,7 +10,6 @@ Performance Tuning and Troubleshooting.\n  * 2-3 years of Solaris 10 - Building,
 class App extends Component {
   state = {
     skills: [],
-    highlightSkills: [],
     text: '',
     skillsLoaded: false
   };
@@ -32,24 +31,24 @@ class App extends Component {
         'Content-Type': 'text/plain'
       }
     }).then(res => res.json());
-    this.setState({ skills: response.skills.map(skill => skill.name) });
-    let highlightSkills = [];
-    response.skills.map(skill =>
-      skill.senses.map(sense =>
-        sense.contextSources.map(source =>
-          source.sequence.map(seq => highlightSkills.push(seq))
-        )
-      )
-    );
+    this.setState({ skills: response.skills });
+    // let highlightSkills = [];
+    // let skillName = '';
+    // response.skills.map(skill =>
+    //   skill.senses.map(sense =>
+    //     sense.contextSources.map(source =>
+    //       source.sequence.map(seq => highlightSkills.push(seq))
+    //     )
+    //   )
+    // );
     this.setState({
-      highlightSkills,
       skillsLoaded: true
     });
   };
   render() {
-    const { skills, text, highlightSkills, skillsLoaded } = this.state;
-    console.log(highlightSkills);
+    const { skills, text, skillsLoaded } = this.state;
     console.log(text);
+    console.log(skills);
     return (
       <div>
         <div className="App">
@@ -91,7 +90,7 @@ class App extends Component {
               </button>
               <button
                 style={{ float: 'right' }}
-                onClick={() => this.setState({ text: '' })}
+                onClick={() => this.setState({ text: '', skillsLoaded: false })}
               >
                 Reset
               </button>
@@ -113,8 +112,8 @@ class App extends Component {
                 height: '483px'
               }}
             >
-              {this.state.skills.map(skill => (
-                <li key={skill}>{skill}</li>
+              {this.state.skills.map((skill, index) => (
+                <li key={`skill-${index}`}>{skill.name}</li>
               ))}
             </ul>
           </div>
