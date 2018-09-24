@@ -2,11 +2,17 @@ import React, { Component } from 'react';
 import './App.css';
 import logo from './logo-dark.png';
 
+/*
+Systems Engineer - Linux at Eikon Consulting Group\n\n  Plano, TX 75024\n\n  About the Job\n\n  6 Months Contract To Hire\n  * 10 years or more of Linux Experience - Red Hat (RHEL) / Oracle (UEK) - 6.x or 7.x - Building, Security Hardening, Performance Tuning and Troubleshooting.\n  * 2-3 years of AIX 6.x and 7.x - Building, Security Hardening, 
+Performance Tuning and Troubleshooting.\n  * 2-3 years of Solaris 10 - Building, Security Hardening, Performance Tuning and Troubleshooting\n
+*/
+
 class App extends Component {
   state = {
-    skills: this.props.skillsTagging.map(tag => tag.name),
-    // highlightSkills: this.props.skillsTagging.map(tag => tag.sense.map(sense => sense.contextSources))
-    text: ''
+    skills: [],
+    highlightSkills: [],
+    text: '',
+    skillsLoaded: false
   };
   handleClick = async () => {
     let formData = new FormData();
@@ -25,11 +31,25 @@ class App extends Component {
         Authorization: `Bearer ${creds.access_token}`,
         'Content-Type': 'text/plain'
       }
-    }).then(res => console.log(res));
-    // console.log(response);
+    }).then(res => res.json());
+    this.setState({ skills: response.skills.map(skill => skill.name) });
+    let highlightSkills = [];
+    response.skills.map(skill =>
+      skill.senses.map(sense =>
+        sense.contextSources.map(source =>
+          source.sequence.map(seq => highlightSkills.push(seq))
+        )
+      )
+    );
+    this.setState({
+      highlightSkills,
+      skillsLoaded: true
+    });
   };
   render() {
-    const { skills, text } = this.state;
+    const { skills, text, highlightSkills, skillsLoaded } = this.state;
+    console.log(highlightSkills);
+    console.log(text);
     return (
       <div>
         <div className="App">
@@ -51,17 +71,20 @@ class App extends Component {
             }}
           >
             <h2>Add some text</h2>
-            <textarea
-              style={{
-                display: 'block',
-                width: '100%',
-                height: '500px',
-                border: '1px solid grey'
-              }}
-              onChange={({ target: { value } }) =>
-                this.setState({ text: value })
-              }
-            />
+            {!skillsLoaded && (
+              <textarea
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: '500px',
+                  border: '1px solid grey'
+                }}
+                onChange={({ target: { value } }) =>
+                  this.setState({ text: value })
+                }
+              />
+            )}
+            {skillsLoaded && <p>{text}</p>}
             <div style={{ marginTop: '10px' }}>
               <button onClick={this.handleClick} disabled={text.length === 0}>
                 Show me skills
