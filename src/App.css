@@ -16,3 +16,11 @@
 .App-intro {
   font-size: large;
 }
+
+.highlight {
+  background-color: yellow;
+}
+
+.highlight2 {
+  background-color: orange;
+}

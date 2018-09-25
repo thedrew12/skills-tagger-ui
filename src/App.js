@@ -3,14 +3,15 @@ import './App.css';
 import logo from './logo-dark.png';
 
 /*
-Systems Engineer - Linux at Eikon Consulting Group\n\n  Plano, TX 75024\n\n  About the Job\n\n  6 Months Contract To Hire\n  * 10 years or more of Linux Experience - Red Hat (RHEL) / Oracle (UEK) - 6.x or 7.x - Building, Security Hardening, Performance Tuning and Troubleshooting.\n  * 2-3 years of AIX 6.x and 7.x - Building, Security Hardening, 
-Performance Tuning and Troubleshooting.\n  * 2-3 years of Solaris 10 - Building, Security Hardening, Performance Tuning and Troubleshooting\n
+Systems Engineer - Linux at Eikon Consulting Group  Plano, TX 75024  About the Job  6 Months Contract To Hire  * 10 years or more of Linux Experience - Red Hat (RHEL) / Oracle (UEK) - 6.x or 7.x - Building, Security Hardening, Performance Tuning and Troubleshooting.  * 2-3 years of AIX 6.x and 7.x - Building, Security Hardening, 
+Performance Tuning and Troubleshooting.  * 2-3 years of Solaris 10 - Building, Security Hardening, Performance Tuning and Troubleshooting
 */
 
 class App extends Component {
   state = {
     skills: [],
     text: '',
+    modText: null,
     skillsLoaded: false
   };
   handleClick = async () => {
@@ -32,23 +33,58 @@ class App extends Component {
       }
     }).then(res => res.json());
     this.setState({ skills: response.skills });
-    // let highlightSkills = [];
-    // let skillName = '';
-    // response.skills.map(skill =>
-    //   skill.senses.map(sense =>
-    //     sense.contextSources.map(source =>
-    //       source.sequence.map(seq => highlightSkills.push(seq))
-    //     )
-    //   )
-    // );
     this.setState({
       skillsLoaded: true
     });
   };
+  handleHighlight = skill => {
+    const { text, modText } = this.state;
+    this.text.innerHTML = text;
+    skill.senses.map(sense =>
+      sense.contextSources
+        .sort((a, b) => {
+          return b.sequence[0].sourceStart - a.sequence[0].sourceStart;
+        })
+        .map(source => {
+          var innerHTML = this.text.innerHTML;
+          innerHTML =
+            innerHTML.substring(0, source.sequence[0].sourceStart) +
+            "<span class='highlight'>" +
+            innerHTML.substring(
+              source.sequence[0].sourceStart,
+              source.sequence[0].sourceEnd
+            ) +
+            '</span>' +
+            innerHTML.substring(source.sequence[0].sourceEnd);
+          this.text.innerHTML = innerHTML;
+        })
+    );
+  };
+  handleHighlightSurface = skill => {
+    const { text, modText } = this.state;
+    this.text.innerHTML = text;
+    skill.senses.map(sense =>
+      sense.surfaceFormSources
+        .sort((a, b) => {
+          return b.sequence[0].sourceStart - a.sequence[0].sourceStart;
+        })
+        .map(source => {
+          var innerHTML = this.text.innerHTML;
+          innerHTML =
+            innerHTML.substring(0, source.sequence[0].sourceStart) +
+            "<span class='highlight2'>" +
+            innerHTML.substring(
+              source.sequence[0].sourceStart,
+              source.sequence[0].sourceEnd
+            ) +
+            '</span>' +
+            innerHTML.substring(source.sequence[0].sourceEnd);
+          this.text.innerHTML = innerHTML;
+        })
+    );
+  };
   render() {
-    const { skills, text, skillsLoaded } = this.state;
-    console.log(text);
-    console.log(skills);
+    const { skills, text, skillsLoaded, modText, highlights } = this.state;
     return (
       <div>
         <div className="App">
@@ -56,7 +92,6 @@ class App extends Component {
             <img src={logo} />
             <h1 style={{ margin: '0' }}>Skills Tagger</h1>
           </header>
-          <p className="App-intro">To get started, blah.</p>
         </div>
         <div
           style={{
@@ -72,6 +107,7 @@ class App extends Component {
             <h2>Add some text</h2>
             {!skillsLoaded && (
               <textarea
+                placeholder="Add a job description"
                 style={{
                   display: 'block',
                   width: '100%',
@@ -79,11 +115,15 @@ class App extends Component {
                   border: '1px solid grey'
                 }}
                 onChange={({ target: { value } }) =>
-                  this.setState({ text: value })
+                  this.setState({ modText: value, text: value })
                 }
               />
             )}
-            {skillsLoaded && <p>{text}</p>}
+            {skillsLoaded && (
+              <p style={{ lineHeight: 2 }} ref={el => (this.text = el)}>
+                {text}
+              </p>
+            )}
             <div style={{ marginTop: '10px' }}>
               <button onClick={this.handleClick} disabled={text.length === 0}>
                 Show me skills
@@ -113,7 +153,22 @@ class App extends Component {
               }}
             >
               {this.state.skills.map((skill, index) => (
-                <li key={`skill-${index}`}>{skill.name}</li>
+                <li
+                  key={`skill-${index}`}
+                  onClick={() => {
+                    this.handleHighlight(skill);
+                  }}
+                >
+                  {skill.name}{' '}
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.handleHighlightSurface(skill);
+                    }}
+                  >
+                    Surface Form
+                  </button>
+                </li>
               ))}
             </ul>
           </div>
