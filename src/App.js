@@ -2,6 +2,13 @@ import React, { Component } from 'react';
 import './App.css';
 import logo from './logo-dark.png';
 
+const {
+  REACT_APP_CLIENT_ID,
+  REACT_APP_CLIENT_SECRET,
+  REACT_APP_SCOPE,
+  REACT_APP_GRANT_TYPE
+} = process.env;
+
 /*
 Systems Engineer - Linux at Eikon Consulting Group  Plano, TX 75024  About the Job  6 Months Contract To Hire  * 10 years or more of Linux Experience - Red Hat (RHEL) / Oracle (UEK) - 6.x or 7.x - Building, Security Hardening, Performance Tuning and Troubleshooting.  * 2-3 years of AIX 6.x and 7.x - Building, Security Hardening, 
 Performance Tuning and Troubleshooting.  * 2-3 years of Solaris 10 - Building, Security Hardening, Performance Tuning and Troubleshooting
@@ -16,10 +23,10 @@ class App extends Component {
   };
   handleClick = async () => {
     let formData = new FormData();
-    formData.append('grant_type', 'client_credentials');
-    formData.append('client_id', 'case-testing');
-    formData.append('client_secret', '46CAB011');
-    formData.append('scope', 'emsiauth');
+    formData.append('grant_type', REACT_APP_GRANT_TYPE);
+    formData.append('client_id', REACT_APP_CLIENT_ID);
+    formData.append('client_secret', REACT_APP_CLIENT_SECRET);
+    formData.append('scope', REACT_APP_SCOPE);
     const creds = await fetch('https://auth.emsicloud.com/connect/token', {
       method: 'POST',
       body: formData
