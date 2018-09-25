@@ -18,7 +18,6 @@ class App extends Component {
   state = {
     skills: [],
     text: '',
-    modText: null,
     skillsLoaded: false
   };
   handleClick = async () => {
@@ -45,7 +44,7 @@ class App extends Component {
     });
   };
   handleHighlight = skill => {
-    const { text, modText } = this.state;
+    const { text } = this.state;
     this.text.innerHTML = text;
     skill.senses.map(sense =>
       sense.contextSources
@@ -64,11 +63,12 @@ class App extends Component {
             '</span>' +
             innerHTML.substring(source.sequence[0].sourceEnd);
           this.text.innerHTML = innerHTML;
+          return null;
         })
     );
   };
   handleHighlightSurface = skill => {
-    const { text, modText } = this.state;
+    const { text } = this.state;
     this.text.innerHTML = text;
     skill.senses.map(sense =>
       sense.surfaceFormSources
@@ -87,16 +87,17 @@ class App extends Component {
             '</span>' +
             innerHTML.substring(source.sequence[0].sourceEnd);
           this.text.innerHTML = innerHTML;
+          return null;
         })
     );
   };
   render() {
-    const { skills, text, skillsLoaded, modText, highlights } = this.state;
+    const { skills, text, skillsLoaded } = this.state;
     return (
       <div>
         <div className="App">
           <header className="App-header">
-            <img src={logo} />
+            <img src={logo} alt="" />
             <h1 style={{ margin: '0' }}>Skills Tagger</h1>
           </header>
         </div>
@@ -122,7 +123,7 @@ class App extends Component {
                   border: '1px solid grey'
                 }}
                 onChange={({ target: { value } }) =>
-                  this.setState({ modText: value, text: value })
+                  this.setState({ text: value })
                 }
               />
             )}
@@ -159,7 +160,7 @@ class App extends Component {
                 height: '483px'
               }}
             >
-              {this.state.skills.map((skill, index) => (
+              {skills.map((skill, index) => (
                 <li
                   key={`skill-${index}`}
                   onClick={() => {
